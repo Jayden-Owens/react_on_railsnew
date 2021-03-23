@@ -1,45 +1,57 @@
-import axios from 'axios';
 import { Component } from 'react'
 import TodoForm from './components/todos/TodoForm';
+import TodoList from './components/todos/TodoList';
+import axios from 'axios';
 class App extends Component {
   state = { todos: [] }
-
   componentDidMount() {
-    // make a call to our rails end to get all todos
-    // set the todos on to state
-
+    // make a api call to our rails end to get all todos
+    axios.get('/api/todos')
+      .then( res => {
+        // set the todos on to state 
+        this.setState({ todos: res.data })
+      })  
+      .catch( err => console.log(err))
   }
+            // { title: 'react', complete }
   addTodo = (todo) => {
-  //make a api call to add in our rails server and our database
-  // add the new todo to the front end
+    // make a api call to add in our rails server and our db
+                            // { todo: { title: 'react', complete } }
     axios.post('/api/todos', { todo })
       .then( res => {
-        // add new todo
-        const {todos} = this.state
-        this.setState({ todos: [...todos, res.data]})
+        // add the new todo to the front end 
+        const { todos } = this.state 
+        this.setState({ todos: [ ...todos, res.data ] })
       })
       .catch( err => console.log(err))
-
   }
-
   updateTodo = (id, updatedTodo) => {
-  // update in our back end and the db with the api call
-  // update the todo in the front end
+    // update in our back end and db with api call 
+    // update the todo in the front end 
   }
   deleteTodo = (id) => {
-//make api call to delete in the back end and the db
-// delete the todo in the frontend
-    
+    // make api call to delete in the back end and db
+    axios.delete(`/api/todos/${id}`)
+      .then( res => {
+        // delete the todo in the frontend 
+        const { todos } = this.state 
+        this.setState({ todos: todos.filter( t => t.id !== id )})
+        alert(res.data)
+      })
+      .catch( err => console.log(err))
   }
-  render () {
+  render() {
+    const { todos } = this.state
     return (
       <>
-        <h1>To Do List</h1>
-        <TodoForm add Todo={this.addTodo}/>
+        <h1>Todo List</h1>
+        <TodoForm addTodo={this.addTodo} />
+        <TodoList 
+          todos={todos} 
+          deleteTodo={this.deleteTodo}
+        />
       </>
     )
   }
 }
-
-
 export default App;
